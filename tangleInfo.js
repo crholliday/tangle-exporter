@@ -10,8 +10,12 @@ module.exports = (promclient, config) => {
     let Gauge = promclient.Gauge
 
     let numberOfNodes = new Gauge({
-        name: 'tangle_number_nodes_count',
+        name: 'tangle_number_nodes_queried_count',
         help: 'Total nodes queried'
+    })
+    let numberOfNodesSeen = new Gauge({
+        name: 'tangle_number_nodes_seen_count',
+        help: 'Total nodes seen'
     })
     let appVersion = new Gauge({
         name: 'tangle_number_nodes_by_IRI_version',
@@ -64,9 +68,16 @@ module.exports = (promclient, config) => {
 
     module.getInfo = async () => {
 
+
         try {
             let info = await axios.get(config.tangle_info_url)
             numberOfNodes.set(info.data.nodesQueried)
+            numberOfNodesSeen.set(info.data.nodesSeen)
+
+            //What do we have here
+            // Object.entries(info.data).forEach(
+            //     ([key, value]) => console.log(key)
+            // )
             
             Object.entries(info.data.appVersion).forEach(
                 ([key, value]) => appVersion.set({'version': key}, value )
